@@ -27,7 +27,6 @@ final class Movie: Decodable {
     var backdropPath: String?
     var posterPath: String?
     
-    
     private enum CodingKeys: String, CodingKey {
         case id
         case title

@@ -23,14 +23,21 @@ final class MoviesListViewController: UIViewController {
         super.viewDidLoad()
         
         title = "Upcoming Movies"
+        
         tableView.tableFooterView = UIView()
+        tableView.refreshControl = UIRefreshControl()
+        tableView.refreshControl?.addTarget(self, action: #selector(didPullToRefresh(refreshControl:)), for: UIControlEvents.valueChanged)
         
         tableView.dataSource = self
         tableView.delegate = self
         
         viewModel.didUpdate = { [weak self] in
             guard let `self` = self else { return }
-            self.tableView.reloadData()
+            
+            if !self.viewModel.isUpdating {
+                self.tableView.refreshControl?.endRefreshing()
+                self.tableView.reloadData()
+            }
         }
         
         viewModel.didFail = { error in
@@ -40,7 +47,11 @@ final class MoviesListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.updateData()
+        viewModel.update(nextPage: true)
+    }
+    
+    @IBAction func didPullToRefresh(refreshControl: UIRefreshControl) {
+        viewModel.update(reset: true)
     }
 
 }
@@ -54,10 +65,22 @@ extension MoviesListViewController: UITableViewDelegate, UITableViewDataSource {
         return self.viewModel.moviesCount
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if (viewModel.moviesCount - 1)  == indexPath.row && !viewModel.shouldShowLoadingCell {
+            let colorCell = UITableViewCell()
+            colorCell.backgroundColor = UIColor.red
+            return colorCell
+        }
+        
         return MovieGlanceTableViewCell.dequeueCell(forTableView: tableView, usingViewModel: viewModel.getMovieGlanceViewModel(forIndexPath: indexPath))
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 206
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if (viewModel.moviesCount - 1) == indexPath.row {
+            viewModel.update(nextPage: true)
+        }
     }
     
 }

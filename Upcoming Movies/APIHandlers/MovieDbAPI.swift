@@ -14,6 +14,7 @@ enum MovieDbAPI: String {
     private static let apiKey: String = "1f54bd990f1cdfb230adb312546d765d"
     
     case upcomingMovies = "/movie/upcoming"
+    case genreList = "/genre/movie/list"
     
     
     func getUrl(withParameters parameters: [String: String] = [:]) -> URL! {

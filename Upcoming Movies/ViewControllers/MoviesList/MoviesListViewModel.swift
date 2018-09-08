@@ -11,45 +11,52 @@ import Foundation
 final class MoviesListViewModel: ViewModel {
     
     // MARK: - Data
-    private var movies: [Movie] = []
+    private let movieStorage: MovieStorage
     
-    // MARK: - Status Machine
-    var isUpdating: Bool = false {
-        didSet {
-            DispatchQueue.main.async {
-                self.didUpdate?()
-            }
-        }
+    required init(withMovieStorage movieStorage: MovieStorage) {
+        self.movieStorage = movieStorage
     }
     
     // MARK: - Properties
+    var shouldShowLoadingCell: Bool {
+        return !movieStorage.hasReachedEndOfItems
+    }
     var moviesCount: Int {
-        return movies.count
+        return movieStorage.count + 1
     }
     
-    func getMovieGlanceViewModel(forIndexPath indexPath: IndexPath) -> MovieGlanceViewModel {
-        return MovieGlanceViewModel(withMovie: movies[indexPath.row])
+    func getMovieGlanceViewModel(forIndexPath indexPath: IndexPath) -> MovieGlanceViewModel? {
+        if indexPath.row >= movieStorage.count {
+            return nil
+        }
+        return MovieGlanceViewModel(withMovie: movieStorage.data[indexPath.row])
     }
     
     // MARK: - Actions
-    func updateData() {
-        isUpdating = true
+    func update(reset: Bool = false, nextPage: Bool = true) {
+        if (!reset && movieStorage.hasReachedEndOfItems) || isUpdating {
+            return
+        }
         
-        MovieDb.requestUpcomingMovies(forPage: 1, andLanguage: "en-US", success: { [weak self] (moviesList) in
+        self.isUpdating = true
+        
+        GenreStorage.shared.loadData(reset: reset) { [weak self] in
             guard let `self` = self else { return }
             
-            let newMovies = moviesList.movies.filter({ [weak self] (movie) -> Bool in
-                guard let `self` = self else { return false }
-                return !self.movies.contains(movie)
+            self.movieStorage.loadData(reset: reset, nextPage: nextPage, success: { [weak self] in
+                guard let `self` = self else { return }
+                self.isUpdating = false
+            }, failure: { [weak self] (error) in
+                guard let `self` = self else { return }
+                self.isUpdating = false
+                self.didFail?(error)
             })
-            self.movies += newMovies
-            self.isUpdating = false
             
-        }, failure: { [weak self] (error) in
-            guard let `self` = self else { return }
-            self.isUpdating = false
-            self.didFail?(error)
-        })
+        }
+        
+        
+        
+        
     }
     
 }

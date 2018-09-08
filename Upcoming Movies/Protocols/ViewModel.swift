@@ -8,13 +8,18 @@
 
 import Foundation
 
-protocol ViewModelAction { }
-
 class ViewModel {
     
     var didUpdate: (() -> Void)?
     var didFail: ((Error) -> Void)?
     
-    func execute(action: ViewModelAction) { }
+    // MARK: - Status Machine
+    var isUpdating: Bool = false {
+        didSet {
+            DispatchQueue.main.async {
+                self.didUpdate?()
+            }
+        }
+    }
     
 }

@@ -21,7 +21,8 @@ final class MoviesListCoordinator: Coordinator {
         navigationController.navigationBar.prefersLargeTitles = true
         navigationController.navigationBar.barStyle = .blackTranslucent
         
-        navigationController.viewControllers = [MoviesListViewController(withViewModel: MoviesListViewModel())]
+        let moviesListViewModel = MoviesListViewModel(withMovieStorage: MovieStorage())
+        navigationController.viewControllers = [MoviesListViewController(withViewModel: moviesListViewModel)]
     }
     
 }

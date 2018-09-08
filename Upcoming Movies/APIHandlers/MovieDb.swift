@@ -32,11 +32,15 @@ final class MovieDb {
         let parameters = ["page": String(page),
                           "language": language]
         
-        MovieDb.request(url: MovieDbAPI.upcomingMovies.getUrl(withParameters: parameters), method: .get, expectingResponseOfType: MoviesList.self, success: { (moviesList) in
-            success(moviesList)
-        }, failure: { (error) in
-            failure(error)
-        })
+        MovieDb.request(url: MovieDbAPI.upcomingMovies.getUrl(withParameters: parameters), method: .get, expectingResponseOfType: MoviesList.self, success: success, failure: failure)
+    }
+    
+    static func requestGenreList(language: String, success: @escaping (GenresList) -> Void, failure: @escaping (MovieDbError) -> Void) {
+        
+        let parameters = ["language": language]
+        
+        MovieDb.request(url: MovieDbAPI.genreList.getUrl(withParameters: parameters), method: .get, expectingResponseOfType: GenresList.self, success: success, failure: failure)
+        
     }
     
 }

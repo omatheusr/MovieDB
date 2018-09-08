@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ImageRequester {
+final class ImageRequester {
     
     private static var imageRequesterURLSession: URLSession {
         let session = URLSession(configuration: .default)

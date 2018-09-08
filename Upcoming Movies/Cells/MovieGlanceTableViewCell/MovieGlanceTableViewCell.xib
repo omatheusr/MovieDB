@@ -25,7 +25,7 @@
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xNv-G2-mJr" customClass="RoundUIView" customModule="Upcoming_Movies" customModuleProvider="target">
                                 <rect key="frame" x="10" y="10" width="355" height="185.5"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cCQ-DT-bze">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-movie" translatesAutoresizingMaskIntoConstraints="NO" id="cCQ-DT-bze">
                                         <rect key="frame" x="10" y="10" width="110" height="165.5"/>
                                         <color key="backgroundColor" red="0.097103781700134228" green="0.097103781700134228" blue="0.097103781700134228" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
@@ -44,18 +44,44 @@
                                         <color key="textColor" red="0.61176470588235299" green="0.61176470588235299" blue="0.61176470588235299" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Short description of the movie goes here. Short description of the movie goes here. Short description of the movie goes here." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ado-nZ-Evk">
+                                        <rect key="frame" x="130" y="64.5" width="215" height="57.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <color key="textColor" red="0.87450980392156863" green="0.87450980392156863" blue="0.87450980392156863" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VrL-Kv-uC4">
+                                        <rect key="frame" x="130" y="126" width="215" height="42.5"/>
+                                        <color key="backgroundColor" red="0.094117647058823528" green="0.094117647058823528" blue="0.094117647058823528" alpha="1" colorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="0un-WC-jh1"/>
+                                        </constraints>
+                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="6" minimumInteritemSpacing="4" id="5Ya-l8-Mi0">
+                                            <size key="itemSize" width="50" height="50"/>
+                                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                        </collectionViewFlowLayout>
+                                    </collectionView>
                                 </subviews>
                                 <color key="backgroundColor" red="0.094117647058823528" green="0.094117647058823528" blue="0.094117647058823528" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="Sb2-vm-3LO" secondAttribute="trailing" constant="10" id="00f-oy-QqG"/>
                                     <constraint firstItem="Sb2-vm-3LO" firstAttribute="leading" secondItem="cCQ-DT-bze" secondAttribute="trailing" constant="10" id="5pO-bu-1VL"/>
                                     <constraint firstAttribute="bottom" secondItem="cCQ-DT-bze" secondAttribute="bottom" constant="10" id="6Gm-Fg-yJF"/>
+                                    <constraint firstItem="ado-nZ-Evk" firstAttribute="top" secondItem="Sb2-vm-3LO" secondAttribute="bottom" constant="10" id="EH7-bh-tcZ"/>
                                     <constraint firstItem="cCQ-DT-bze" firstAttribute="leading" secondItem="xNv-G2-mJr" secondAttribute="leading" constant="10" id="ICi-2q-964"/>
+                                    <constraint firstAttribute="bottom" secondItem="VrL-Kv-uC4" secondAttribute="bottom" constant="17" id="JVR-Fo-1p5"/>
                                     <constraint firstAttribute="width" constant="355" id="Mhf-Yy-pBA"/>
                                     <constraint firstItem="Sb2-vm-3LO" firstAttribute="top" secondItem="ae5-AK-I9V" secondAttribute="bottom" id="ScS-6Z-p0Q"/>
+                                    <constraint firstItem="ado-nZ-Evk" firstAttribute="leading" secondItem="cCQ-DT-bze" secondAttribute="trailing" constant="10" id="T5L-94-1Ae"/>
                                     <constraint firstAttribute="trailing" secondItem="ae5-AK-I9V" secondAttribute="trailing" constant="10" id="Vbr-FY-xua"/>
+                                    <constraint firstAttribute="trailing" secondItem="VrL-Kv-uC4" secondAttribute="trailing" constant="10" id="YPh-rv-mEj"/>
                                     <constraint firstItem="ae5-AK-I9V" firstAttribute="top" secondItem="xNv-G2-mJr" secondAttribute="top" constant="18" id="Ybp-9G-5et"/>
                                     <constraint firstItem="cCQ-DT-bze" firstAttribute="top" secondItem="xNv-G2-mJr" secondAttribute="top" constant="10" id="gp4-jr-hEM"/>
+                                    <constraint firstItem="VrL-Kv-uC4" firstAttribute="top" secondItem="ado-nZ-Evk" secondAttribute="bottom" constant="4" id="kE4-Ql-S8B"/>
+                                    <constraint firstAttribute="trailing" secondItem="ado-nZ-Evk" secondAttribute="trailing" constant="10" id="mkO-c1-6bX"/>
+                                    <constraint firstItem="VrL-Kv-uC4" firstAttribute="leading" secondItem="cCQ-DT-bze" secondAttribute="trailing" constant="10" id="oy6-Gu-zkA"/>
                                     <constraint firstItem="ae5-AK-I9V" firstAttribute="leading" secondItem="cCQ-DT-bze" secondAttribute="trailing" constant="10" id="pla-2y-M36"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
@@ -107,11 +133,16 @@
             <color key="backgroundColor" red="0.094117647058823528" green="0.094117647058823528" blue="0.094117647058823528" alpha="1" colorSpace="calibratedRGB"/>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="collectionView" destination="VrL-Kv-uC4" id="Iqq-rK-IOG"/>
                 <outlet property="imgPoster" destination="cCQ-DT-bze" id="YaC-e9-VS3"/>
+                <outlet property="lblOverview" destination="ado-nZ-Evk" id="7KK-Rg-y2r"/>
                 <outlet property="lblReleaseDate" destination="Sb2-vm-3LO" id="eQN-OQ-jUh"/>
                 <outlet property="lblTitle" destination="ae5-AK-I9V" id="G6T-kK-8PD"/>
             </connections>
             <point key="canvasLocation" x="61.5" y="135"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="icon-movie" width="32" height="25"/>
+    </resources>
 </document>
