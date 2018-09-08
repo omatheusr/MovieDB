@@ -9,6 +9,7 @@
 import Foundation
 
 final class MoviesList: Decodable {
+    
     let page: Int
     let movies: [Movie]
     let totalPages: Int
@@ -20,4 +21,5 @@ final class MoviesList: Decodable {
         case totalPages = "total_pages"
         case totalResults = "total_results"
     }
+    
 }

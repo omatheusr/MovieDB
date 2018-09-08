@@ -15,6 +15,7 @@ enum MovieDbAPI: String {
     
     case upcomingMovies = "/movie/upcoming"
     
+    
     func getUrl(withParameters parameters: [String: String] = [:]) -> URL! {
         var urlParams: String = ""
         for (paramKey, paramValue) in parameters {
@@ -22,6 +23,10 @@ enum MovieDbAPI: String {
         }
         
         return URL(string: "\(MovieDbAPI.baseUrl)\(self.rawValue)?api_key=\(MovieDbAPI.apiKey)\(urlParams)")
+    }
+    
+    static func getImageUrl(forImagePath imagePath: String) -> URL! {
+        return URL(string: "https://image.tmdb.org/t/p/w500/\(imagePath)")
     }
     
 }

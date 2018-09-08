@@ -12,7 +12,12 @@ final class MoviesListViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     
-    var moviesList: MoviesList?
+    private var viewModel: MoviesListViewModel!
+    
+    required convenience init(withViewModel viewModel: MoviesListViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,35 +27,37 @@ final class MoviesListViewController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
+        
+        viewModel.didUpdate = { [weak self] in
+            guard let `self` = self else { return }
+            self.tableView.reloadData()
+        }
+        
+        viewModel.didFail = { error in
+            print(error.localizedDescription)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        MovieDb.requestUpcomingMovies(forPage: 1, andLanguage: "pt-BR", success: { [weak self] (moviesList) in
-            self?.moviesList = moviesList
-            DispatchQueue.main.async {
-                self?.tableView.reloadData()
-            }
-        }, failure: { (error) in
-            print(error.message)
-        })
+        viewModel.updateData()
     }
 
 }
 
 extension MoviesListViewController: UITableViewDelegate, UITableViewDataSource {
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.moviesList?.movies.count ?? 0
+        return self.viewModel.moviesCount
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cellTitle")
-        
-        cell.textLabel?.text = self.moviesList?.movies[indexPath.row].title ?? "-"
-        
-        return cell
+        return MovieGlanceTableViewCell.dequeueCell(forTableView: tableView, usingViewModel: viewModel.getMovieGlanceViewModel(forIndexPath: indexPath))
     }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 206
+    }
+    
 }

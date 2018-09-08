@@ -9,6 +9,7 @@
 import Foundation
 
 final class MovieDbError: Decodable {
+    
     let code: Int
     let message: String
     
@@ -20,5 +21,12 @@ final class MovieDbError: Decodable {
     private enum CodingKeys: String, CodingKey {
         case code = "statusCode"
         case message = "statusMessage"
+    }
+    
+}
+
+extension MovieDbError: Error {
+    var localizedDescription: String {
+        return "\(code) - \(message)"
     }
 }
