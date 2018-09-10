@@ -8,7 +8,7 @@
 
 import Foundation
 
-class GenreStorage: Storage {
+class GenreStorage {
     
     static let shared: GenreStorage = GenreStorage()
     
@@ -22,13 +22,13 @@ class GenreStorage: Storage {
     func loadData(reset: Bool = false, success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         if isUpdating { return }
         
-        if reset {
-            data = []
+        if !data.isEmpty && !reset {
+            success()
+            return
         }
-        
+        data = []
         isUpdating = true
         MovieDb.requestGenreList(language: language, success: { (genresList) in
-            
             let newGenres = genresList.genres.filter({ [weak self] (genre) -> Bool in
                 guard let `self` = self else { return false }
                 return !self.data.contains(genre)

@@ -14,11 +14,12 @@ class ViewModel {
     var didFail: ((Error) -> Void)?
     
     // MARK: - Status Machine
-    var isUpdating: Bool = false {
-        didSet {
-            DispatchQueue.main.async {
-                self.didUpdate?()
-            }
+    var isUpdating: Bool = false
+    
+    func update() {
+        DispatchQueue.main.async { [weak self] in
+            guard let `self` = self else { return }
+            self.didUpdate?()
         }
     }
     

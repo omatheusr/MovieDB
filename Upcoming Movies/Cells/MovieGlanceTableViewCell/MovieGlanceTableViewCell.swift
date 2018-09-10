@@ -10,55 +10,64 @@ import UIKit
 
 final class MovieGlanceTableViewCell: AnimatedUITableViewCell {
     
-    static func dequeueCell(forTableView tableView: UITableView, usingViewModel viewModel: MovieGlanceViewModel?) -> MovieGlanceTableViewCell {
-        
-        var cell: MovieGlanceTableViewCell! = tableView.dequeueReusableCell(withIdentifier: String(describing: self)) as? MovieGlanceTableViewCell
-        
-        if cell == nil {
-            tableView.register(UINib(nibName: String(describing: self), bundle: Bundle.main), forCellReuseIdentifier: String(describing: self))
-            cell = tableView.dequeueReusableCell(withIdentifier: String(describing: self)) as? MovieGlanceTableViewCell
-        }
-        
-        cell.viewModel = viewModel
-        
-        return cell
-    }
-    
     @IBOutlet weak var imgPoster: UIImageView!
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var lblReleaseDate: UILabel!
     @IBOutlet weak var lblOverview: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    var viewModel: MovieGlanceViewModel? {
+    weak var viewModel: MovieGlanceViewModel? {
         didSet {
-            viewModel?.didUpdate = { [weak self, weak viewModel] in
-                guard let `self` = self, let viewModel = viewModel else { return }
+            guard let viewModel = viewModel else {
+                return
+            }
+            
+            viewModel.didUpdate = { [weak self, weak viewModel] in
+                guard let `self` = self, let viewModel = viewModel, self.viewModel == viewModel else { return }
                 
-                self.imgPoster?.image = viewModel.moviePosterImage
-                self.imgPoster?.contentMode = viewModel.moviePosterImageContentMode
+                self.imgPoster?.image = #imageLiteral(resourceName: "icon-movie")
                 
-                self.lblTitle?.text = viewModel.movieTitle
+                self.lblTitle.text = viewModel.movieTitle
+                self.lblTitle?.alpha = viewModel.movieTitleOpacity
+                
                 self.lblReleaseDate?.text = viewModel.movieReleaseDate
+                self.lblReleaseDate?.alpha = viewModel.movieReleaseDateOpacity
                 
                 self.lblOverview?.text = viewModel.movieOverview
                 self.lblOverview?.alpha = viewModel.movieOverviewOpacity
+                
                 self.collectionView?.reloadData()
+                
+                viewModel.moviePosterImage(downloadCompletion: { [weak self, weak viewModel] (image) in
+                    guard let `self` = self, let viewModel = viewModel, let imgPoster = self.imgPoster, self.viewModel == viewModel else { return }
+                    imgPoster.transition {
+                        imgPoster.image = image
+                        imgPoster.contentMode = viewModel.moviePosterContentMode
+                    }
+                })
             }
-            viewModel?.update()
+            viewModel.update()
         }
     }
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        selectionStyle = .none
+        
+        GenreTitleCollectionViewCell.registerCell(forCollectionView: collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-        GenreTitleCollectionViewCell.registerCell(forCollectionView: collectionView)
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        imgPoster?.image = nil
+        reset()
+    }
+    
+    private func reset() {
+        imgPoster?.image = #imageLiteral(resourceName: "icon-movie")
+        imgPoster?.contentMode = .center
         lblTitle?.text = String()
         lblReleaseDate?.text = String()
         lblOverview?.text = String()
@@ -76,7 +85,9 @@ extension MovieGlanceTableViewCell: UICollectionViewDataSource {
         return viewModel?.movieGenresCount ?? 0
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return GenreTitleCollectionViewCell.dequeueCell(forCollectionView: collectionView, andIndexPath: indexPath, usingViewModel: viewModel?.getGenreTitleViewModel(forIndexPath: indexPath))
+        let cell: GenreTitleCollectionViewCell! = GenreTitleCollectionViewCell.dequeueCell(forCollectionView: collectionView, forIndexPath: indexPath)
+        cell.viewModel = viewModel?.getGenreTitleViewModel(forIndexPath: indexPath)
+        return cell
     }
     
 }
@@ -84,11 +95,8 @@ extension MovieGlanceTableViewCell: UICollectionViewDataSource {
 extension MovieGlanceTableViewCell: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        // TODO: Fix this VVV
-        let sss = (12 + (viewModel?.movieGenres[indexPath.row].name.count ?? 0) * 8)
-        
-        return CGSize(width: sss, height: 26)
+        let width = MovieViewModel.genreTitleSize(forGenreTitle: viewModel?.movieGenres[indexPath.row].name)
+        return CGSize(width: width, height: 26)
     }
     
 }

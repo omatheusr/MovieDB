@@ -16,10 +16,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
+        UINavigationBar.appearance().prefersLargeTitles = true
+        UINavigationBar.appearance().barStyle = .blackTranslucent
+        UISearchBar.appearance().keyboardAppearance = .dark
+        UISearchBar.appearance().tintColor = .white
+        
         let newWindow = UIWindow(frame: UIScreen.main.bounds)
-        
+
         window = newWindow
-        
+
         appCoordinator = AppCoordinator(withWindow: newWindow)
         appCoordinator?.start()
         

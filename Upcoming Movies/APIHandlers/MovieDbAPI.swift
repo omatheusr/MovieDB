@@ -9,7 +9,6 @@
 import Foundation
 
 enum MovieDbAPI: String {
-    
     private static let baseUrl: String = "https://api.themoviedb.org/3"
     private static let apiKey: String = "1f54bd990f1cdfb230adb312546d765d"
     
@@ -27,7 +26,7 @@ enum MovieDbAPI: String {
     }
     
     static func getImageUrl(forImagePath imagePath: String) -> URL! {
-        return URL(string: "https://image.tmdb.org/t/p/w500/\(imagePath)")
+        return URL(string: "https://image.tmdb.org/t/p/\(imagePath)")
     }
     
 }

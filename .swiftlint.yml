@@ -11,3 +11,5 @@ line_length: 300
 identifier_name:
   excluded:
     - id
+    - y
+    - x

@@ -11,52 +11,89 @@ import Foundation
 final class MoviesListViewModel: ViewModel {
     
     // MARK: - Data
-    private let movieStorage: MovieStorage
+    private weak var movieStorage: MovieStorage!
+    private var movieGlanceViewModels: [MovieGlanceViewModel?] = []
     
     required init(withMovieStorage movieStorage: MovieStorage) {
         self.movieStorage = movieStorage
+        super.init()
     }
     
     // MARK: - Properties
-    var shouldShowLoadingCell: Bool {
-        return !movieStorage.hasReachedEndOfItems
-    }
     var moviesCount: Int {
-        return movieStorage.count + 1
+        return self.movieGlanceViewModels.count
     }
     
     func getMovieGlanceViewModel(forIndexPath indexPath: IndexPath) -> MovieGlanceViewModel? {
-        if indexPath.row >= movieStorage.count {
-            return nil
+        guard movieGlanceViewModels.count > indexPath.row else { return nil }
+        var viewModel: MovieGlanceViewModel! = movieGlanceViewModels[indexPath.row]
+        
+        if viewModel == nil {
+            viewModel = MovieGlanceViewModel()
+            movieGlanceViewModels[indexPath.row] = viewModel
+            
+            if let movie = movieStorage.getMovie(atIndex: indexPath.row) {
+                viewModel.movie = movie
+            }
         }
-        return MovieGlanceViewModel(withMovie: movieStorage.data[indexPath.row])
+        return viewModel
     }
     
     // MARK: - Actions
-    func update(reset: Bool = false, nextPage: Bool = true) {
-        if (!reset && movieStorage.hasReachedEndOfItems) || isUpdating {
-            return
+    func willDisplayCell(atIndexPath indexPath: IndexPath) {
+        loadIfNeeded(forIndex: indexPath.row)
+    }
+    
+    func loadIfNeeded(forIndex index: Int, reset: Bool = false) {
+        if reset {
+            self.movieGlanceViewModels = []
         }
         
-        self.isUpdating = true
-        
-        GenreStorage.shared.loadData(reset: reset) { [weak self] in
+        let dispatchSemaphore = DispatchSemaphore(value: 1)
+        DispatchQueue.global(qos: .background).async { [weak self] in
             guard let `self` = self else { return }
             
-            self.movieStorage.loadData(reset: reset, nextPage: nextPage, success: { [weak self] in
+            GenreStorage.shared.loadData(reset: reset) {
+                dispatchSemaphore.signal()
+            }
+            dispatchSemaphore.wait()
+        
+            let page = self.movieStorage.page(forIndex: index)
+            self.movieStorage.load(page: page, success: { [weak self] newMovies in
                 guard let `self` = self else { return }
-                self.isUpdating = false
-            }, failure: { [weak self] (error) in
+                if self.setInitialMovieGlanceViewModelsIfNeeded() {
+                    DispatchQueue.main.async {
+                        self.didUpdate?()
+                    }
+                }
+                self.updateMovieGlanceViewModelsIfNeeded(withMovies: newMovies)
+                
+            }, failure: { [weak self] error in
                 guard let `self` = self else { return }
-                self.isUpdating = false
-                self.didFail?(error)
+                DispatchQueue.main.async {
+                    self.didFail?(error)
+                }
             })
-            
         }
-        
-        
-        
-        
+    }
+    
+    @discardableResult
+    private func setInitialMovieGlanceViewModelsIfNeeded() -> Bool {
+        if self.movieGlanceViewModels.count == self.movieStorage.totalResults {
+            return false
+        }
+        let numberOfViewModels = self.movieStorage.totalResults - self.movieGlanceViewModels.count
+        if numberOfViewModels <= 0 {
+            return false
+        }
+        self.movieGlanceViewModels += [MovieGlanceViewModel?](repeating: nil, count: numberOfViewModels)
+        return true
+    }
+    private func updateMovieGlanceViewModelsIfNeeded(withMovies movies: [Movie]) {
+        for movie in movies {
+            guard let index = movieStorage.index(ofMovie: movie), let viewModel = movieGlanceViewModels[index] else { continue }
+            viewModel.movie = movie
+        }
     }
     
 }

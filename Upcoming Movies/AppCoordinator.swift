@@ -11,7 +11,7 @@ import UIKit
 final class AppCoordinator: Coordinator {
     
     let window: UIWindow
-    var navigationController: UINavigationController
+    private(set) var navigationController: UINavigationController
     private(set) var childCoordinator: Coordinator?
     
     init(withWindow window: UIWindow) {
@@ -23,8 +23,10 @@ final class AppCoordinator: Coordinator {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
-        childCoordinator = MoviesListCoordinator(withNavigationController: navigationController)
-        childCoordinator?.start()
+        let moviesListCoordinator = MoviesListCoordinator(withNavigationController: navigationController)
+        moviesListCoordinator.start()
+        
+        childCoordinator = moviesListCoordinator
     }
     
 }

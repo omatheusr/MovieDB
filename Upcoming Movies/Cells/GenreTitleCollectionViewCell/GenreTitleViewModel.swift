@@ -11,7 +11,7 @@ import Foundation
 final class GenreTitleViewModel: ViewModel {
     
     // MARK: - Data
-    private(set) var genre: Genre!
+    private(set) weak var genre: Genre!
     
     init(withGenre genre: Genre) {
         self.genre = genre
@@ -22,7 +22,4 @@ final class GenreTitleViewModel: ViewModel {
         return genre.name.uppercased()
     }
     
-    func update() {
-        didUpdate?()
-    }
 }

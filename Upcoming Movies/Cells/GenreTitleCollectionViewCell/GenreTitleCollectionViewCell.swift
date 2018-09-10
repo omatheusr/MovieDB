@@ -10,19 +10,6 @@ import UIKit
 
 class GenreTitleCollectionViewCell: UICollectionViewCell {
     
-    static func registerCell(forCollectionView collectionView: UICollectionView) {
-        collectionView.register(UINib(nibName: String(describing: self), bundle: Bundle.main), forCellWithReuseIdentifier: String(describing: self))
-    }
-    
-    static func dequeueCell(forCollectionView collectionView: UICollectionView, andIndexPath indexPath: IndexPath, usingViewModel viewModel: GenreTitleViewModel?) -> GenreTitleCollectionViewCell {
-        
-        let cell: GenreTitleCollectionViewCell! = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: self), for: indexPath) as? GenreTitleCollectionViewCell
-        
-        cell.viewModel = viewModel
-        
-        return cell
-    }
-    
     @IBOutlet weak var lblGenreTitle: UILabel!
     
     var viewModel: GenreTitleViewModel? {

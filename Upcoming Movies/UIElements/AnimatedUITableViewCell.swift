@@ -9,8 +9,6 @@
 import UIKit
 
 class AnimatedUITableViewCell: UITableViewCell {
-
-    private let generator = UISelectionFeedbackGenerator()
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
@@ -33,7 +31,6 @@ class AnimatedUITableViewCell: UITableViewCell {
             self.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
             
             }, completion: nil)
-        generator.prepare()
     }
     private func endSelection(completion: ((Bool) -> Void)? = nil) {
         UIView.animate(withDuration: 0.15, delay: 0, options: [.beginFromCurrentState, .curveEaseInOut], animations: { [weak self] in
@@ -42,7 +39,7 @@ class AnimatedUITableViewCell: UITableViewCell {
             self.transform = CGAffineTransform.identity
             
             }, completion: completion)
-        generator.selectionChanged()
+        
     }
     
 }

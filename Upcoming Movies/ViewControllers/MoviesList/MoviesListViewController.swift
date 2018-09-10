@@ -8,52 +8,66 @@
 
 import UIKit
 
+protocol MoviesListViewControllerDelegate: class {
+    func moviesListViewControllerDidSelectCell(atIndexPath indexPath: IndexPath)
+}
+
 final class MoviesListViewController: UIViewController {
 
+    // MARK: - Outlets
     @IBOutlet weak var tableView: UITableView!
     
     private var viewModel: MoviesListViewModel!
+    weak var delegate: MoviesListViewControllerDelegate?
     
+    private let feedbackGenerator = UISelectionFeedbackGenerator()
+    
+    // MARK: - Initializers
     required convenience init(withViewModel viewModel: MoviesListViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
     
+    // MARK: - Events
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupView()
+        setupViewModel()
+    }
+
+    // MARK: - Setup
+    private func setupView() {
         title = "Upcoming Movies"
         
-        tableView.tableFooterView = UIView()
-        tableView.refreshControl = UIRefreshControl()
-        tableView.refreshControl?.addTarget(self, action: #selector(didPullToRefresh(refreshControl:)), for: UIControlEvents.valueChanged)
+        extendedLayoutIncludesOpaqueBars = true
+        
+        MovieGlanceTableViewCell.registerCell(forTableView: tableView)
         
         tableView.dataSource = self
         tableView.delegate = self
         
+//        let searchController = UISearchController(searchResultsController: UIViewController())
+//
+//        searchController.searchResultsUpdater = self
+//        searchController.obscuresBackgroundDuringPresentation = true
+//        searchController.searchBar.placeholder = "Search Movies"
+//        definesPresentationContext = true
+//
+//        navigationItem.searchController = searchController
+    }
+    
+    private func setupViewModel() {
         viewModel.didUpdate = { [weak self] in
             guard let `self` = self else { return }
-            
-            if !self.viewModel.isUpdating {
-                self.tableView.refreshControl?.endRefreshing()
-                self.tableView.reloadData()
-            }
+            self.tableView.reloadData()
         }
         
         viewModel.didFail = { error in
-            print(error.localizedDescription)
+            self.presentError(withTitle: "Ops...", andMessage: error.localizedDescription)
         }
+        
+        viewModel.loadIfNeeded(forIndex: 0, reset: true)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        viewModel.update(nextPage: true)
-    }
-    
-    @IBAction func didPullToRefresh(refreshControl: UIRefreshControl) {
-        viewModel.update(reset: true)
-    }
-
 }
 
 extension MoviesListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -65,22 +79,33 @@ extension MoviesListViewController: UITableViewDelegate, UITableViewDataSource {
         return self.viewModel.moviesCount
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (viewModel.moviesCount - 1)  == indexPath.row && !viewModel.shouldShowLoadingCell {
-            let colorCell = UITableViewCell()
-            colorCell.backgroundColor = UIColor.red
-            return colorCell
-        }
-        
-        return MovieGlanceTableViewCell.dequeueCell(forTableView: tableView, usingViewModel: viewModel.getMovieGlanceViewModel(forIndexPath: indexPath))
+        let cell: MovieGlanceTableViewCell! = MovieGlanceTableViewCell.dequeueCell(forTableView: tableView)
+        cell.viewModel = viewModel.getMovieGlanceViewModel(forIndexPath: indexPath)
+        return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 206
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if (viewModel.moviesCount - 1) == indexPath.row {
-            viewModel.update(nextPage: true)
-        }
+        viewModel.willDisplayCell(atIndexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        feedbackGenerator.prepare()
+        return indexPath
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.moviesListViewControllerDidSelectCell(atIndexPath: indexPath)
+        feedbackGenerator.selectionChanged()
     }
     
 }
+
+//extension MoviesListViewController: UISearchResultsUpdating {
+//
+//    func updateSearchResults(for searchController: UISearchController) {
+//        print(searchController.searchBar.text)
+//    }
+//
+//}

@@ -43,4 +43,20 @@ final class MovieDb {
         
     }
     
+    static func requestImage(forPath urlPath: String, completion: @escaping (Data?) -> Void) {
+        guard let imageUrl = MovieDbAPI.getImageUrl(forImagePath: urlPath) else {
+            completion(nil)
+            return
+        }
+
+        Requester.shared.execute(requestForURL: imageUrl, usingHttpMethod: .get) { (response) in
+            if case .success(let data, _, _) = response {
+                completion(data)
+            } else {
+                completion(nil)
+            }
+        }
+        
+    }
+    
 }
