@@ -8,52 +8,43 @@
 
 import Foundation
 
-class GenreStorage {
+final class GenreStorage {
+    let language: String = "en-US"
     
     static let shared: GenreStorage = GenreStorage()
     
-    typealias DataType = Genre
+    private var genres: [Genre] = []
+    private var isUpdating: Bool = false
     
-    private(set) var data: [Genre] = []
-    private(set) var isUpdating: Bool = false
+    var isEmpty: Bool {
+        return genres.isEmpty
+    }
     
-    let language: String = "en-US"
+    func getGenre(for id: Int) -> Genre? {
+        return genres.first(where: { $0.id == id })
+    }
     
-    func loadData(reset: Bool = false, success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
-        if isUpdating { return }
+    func getGenres(for ids: [Int]) -> [Genre] {
+        return genres.filter({ ids.contains($0.id) })
+    }
+    
+    @discardableResult
+    func loadIfNeeded(completion: @escaping () -> Void) -> Bool {
+        if isUpdating { return false }
+        if !genres.isEmpty { return false }
         
-        if !data.isEmpty && !reset {
-            success()
-            return
-        }
-        data = []
+        genres = []
         isUpdating = true
         MovieDb.requestGenreList(language: language, success: { (genresList) in
-            let newGenres = genresList.genres.filter({ [weak self] (genre) -> Bool in
-                guard let `self` = self else { return false }
-                return !self.data.contains(genre)
-            })
-            self.data += newGenres
-            
+            self.genres = genresList.genres
             self.isUpdating = false
-            success()
-        }, failure: { [weak self] (error) in
+            completion()
+        }, failure: { [weak self] (_) in
             guard let `self` = self else { return }
             self.isUpdating = false
-            failure(error)
-        })
-    }
-    func loadData(reset: Bool = false, completion: @escaping () -> Void) {
-        loadData(reset: reset, success: completion, failure: { _ in
             completion()
         })
-    }
-    
-    func getGenre(forId id: Int) -> Genre? {
-        return data.first(where: { $0.id == id })
-    }
-    func getGenres(forIds ids: [Int]) -> [Genre] {
-        return data.filter({ ids.contains($0.id) })
+        return true
     }
 
 }

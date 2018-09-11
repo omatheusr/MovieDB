@@ -9,10 +9,9 @@
 import Foundation
 
 final class MovieStorage {
+    let language: String = "en-US"
     
-    typealias DataType = Movie
-    
-    private(set) var movies: [Movie?] = []
+    private var movies: [Movie?] = []
     
     private(set) var totalResults: Int = 0
     private(set) var totalPages: Int = 0
@@ -20,7 +19,6 @@ final class MovieStorage {
     private let pageSize: Int = 20
     private var pagesLoaded: Set<Int> = []
     
-    let language: String = "en-US"
     
     private func add(movies newMovies: [Movie], forPage page: Int) {
         if totalResults <= 0 { return }
@@ -57,15 +55,17 @@ final class MovieStorage {
             failure(error)
         })
     }
-    func page(forIndex index: Int) -> Int {
+    
+    
+    func page(for index: Int) -> Int {
         if index == 0 { return 1 }
         let x = Double(index) / Double(pageSize)
         return Int(ceil(x))
     }
-    func index(ofMovie movie: Movie) -> Int? {
+    func index(of movie: Movie) -> Int? {
         return self.movies.index(of: movie)
     }
-    func getMovie(atIndex index: Int) -> Movie? {
+    func getMovie(at index: Int) -> Movie? {
         if index >= movies.count {
             return nil
         }

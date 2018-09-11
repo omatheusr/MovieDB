@@ -16,13 +16,14 @@ final class MovieDbImage {
     
     private static var cache = NSCache<NSString, UIImage>()
     
-    static func request(forPath path: String, withSize size: ImageSize = ImageSize.small, completion: @escaping (UIImage?) -> Void) {
+    @discardableResult
+    static func request(forPath path: String, withSize size: ImageSize = ImageSize.small, completion: @escaping (UIImage?) -> Void) -> Bool {
         
         let imagePath = "\(size.rawValue)\(path)"
         
         if let image = MovieDbImage.cache.object(forKey: imagePath as NSString) {
             completion(image)
-            return
+            return false
         }
         
         MovieDb.requestImage(forPath: imagePath) { (imageData) in
@@ -33,6 +34,8 @@ final class MovieDbImage {
                 completion(nil)
             }
         }
+        
+        return true
     }
     
 }
