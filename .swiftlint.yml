@@ -1,0 +1,15 @@
+
+disabled_rules:
+  - trailing_whitespace
+  - vertical_whitespace
+
+excluded:
+  - Pods
+
+line_length: 300
+
+identifier_name:
+  excluded:
+    - id
+    - y
+    - x
